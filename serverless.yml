@@ -1,0 +1,69 @@
+service:
+  name: pr-randomizer
+
+plugins:
+  - serverless-webpack
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+
+functions:
+  main:
+    handler: main.index
+    events:
+      - http:
+          private: false
+          method: post
+          path: main
+
+
+resources:
+  Resources:
+    IamPolicyLambda:
+      Type: 'AWS::IAM::Policy'
+      Properties:
+        PolicyName: PrRandomizerPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            -
+              Effect: Allow
+              Action:
+                - dynamodb:scan
+                - dynamodb:put
+              Resource: arn:aws:dynamodb:us-east-1:083030376652:table/PrRandomizerMain
+
+        Roles:
+          -
+            Ref: IamRoleLambda
+
+    IamRoleLambda:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            -
+              Effect: Allow
+              Principal:
+                Service: [lambda.amazonaws.com]
+              Action:
+                - 'sts:AssumeRole'
+        Path: /
+
+    MainTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: PrRandomizerMain
+        AttributeDefinitions:
+          -
+            AttributeName: Name
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: Name
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
