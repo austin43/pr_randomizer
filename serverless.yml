@@ -8,6 +8,10 @@ provider:
   name: aws
   runtime: nodejs6.10
 
+custom:
+  table: ${file(./.env.json):TABLE_NAME}
+  awsAccountId: ${file(./.env.json):AWS_ACCOUNT_ID}
+
 functions:
   main:
     handler: main.index
@@ -31,12 +35,15 @@ resources:
               Effect: Allow
               Action:
                 - dynamodb:scan
-                - dynamodb:put
-              Resource: arn:aws:dynamodb:us-east-1:083030376652:table/PrRandomizerMain
+                - dynamodb:PutItem
+                - dynamodb:GetItem
+              Resource: arn:aws:dynamodb:us-east-1:${self:custom.awsAccountId}:table/${self:custom.table}
 
         Roles:
           -
             Ref: IamRoleLambda
+          -
+            Ref: IamRoleLambdaExecution
 
     IamRoleLambda:
       Type: 'AWS::IAM::Role'
@@ -55,14 +62,14 @@ resources:
     MainTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: PrRandomizerMain
+        TableName: ${self:custom.table}
         AttributeDefinitions:
           -
-            AttributeName: Name
+            AttributeName: SlackUserId
             AttributeType: S
         KeySchema:
           -
-            AttributeName: Name
+            AttributeName: SlackUserId
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
