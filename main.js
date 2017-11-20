@@ -147,7 +147,7 @@ export const index = async(event, context, cb) => {
   } else if(command === 'help') {
     response = 'Commands: \n assign: assign [PR NAME] \n list: show the tickets in the hat'
   } else {
-    response = 'Invalid command; type `/prhat help` for help using this command'
+    response = 'Invalid command; type `/pr help` for help using this command'
   }
 
   cb(null, constructResponse(response))
