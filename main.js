@@ -137,7 +137,7 @@ export const index = async(event, context, cb) => {
 
     const chosenDeveloperId = randomizeAndDecide(hat)
 
-    await incrementUnchosenDeveloperTickets(devsNotIncludingSelf)
+    await incrementUnchosenDeveloperTickets(developers)
     await resetChosenDeveloperTickets(_.find(devsNotIncludingSelf, (dev) => dev.SlackUserId === chosenDeveloperId))
 
     const message = `:tada: *${user_name} assigned \`${prName}\` to <@${chosenDeveloperId}>* :tada:\n`
