@@ -47,8 +47,12 @@ const constructResponse = (response) => {
 const sendMessage = async(message, showTicketList) => {
   const newDevList = await getDevelopers()
   let devTicketList = '*Tickets in hat:*\n'
+  let totalDevTickets = 0
+  
+  newDevList.map((dev) => totalDevTickets += dev.Tickets)
   for(const dev of newDevList) {
-    devTicketList += `${dev.Name} : ${dev.Tickets} \n`
+    const percentage = _.round((dev.Tickets / totalDevTickets) * 100, 2)
+    devTicketList += `${dev.Name} : ${dev.Tickets} (${percentage}%) \n`
   }
 
   let msg
@@ -140,7 +144,7 @@ export const index = async(event, context, cb) => {
     await incrementUnchosenDeveloperTickets(developers)
     await resetChosenDeveloperTickets(_.find(devsNotIncludingSelf, (dev) => dev.SlackUserId === chosenDeveloperId))
 
-    const message = `:tada: *${user_name} assigned \`${prName}\` to <@${chosenDeveloperId}>* :tada:\n`
+    const message = `:tada: ${user_name} assigned \`${prName}\` to <@${chosenDeveloperId}> :tada:\n`
     await sendMessage(message, true)
   } else if(command === 'list') {
     await sendMessage(`${user_name} listed `, true)
